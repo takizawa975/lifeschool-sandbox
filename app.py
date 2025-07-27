@@ -109,4 +109,19 @@ filtered_data = data[
 ]
 
 if len(filtered_data) > 0:
-    st.write(f"選択期�
+    st.write(f"選択期間: {date_range[0]} から {date_range[1]}")
+    st.write(f"データ数: {len(filtered_data)} 件")
+    
+    # フィルタリングされたデータのグラフ
+    if PLOTLY_AVAILABLE:
+        fig = px.line(filtered_data, x='日付', y='売上', 
+                      title=f'選択期間の売上推移')
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.dataframe(filtered_data)
+else:
+    st.warning("選択された期間にデータがありません。")
+
+# フッター
+st.markdown("---")
+st.markdown("**Streamlit サンプルアプリ** - データ可視化とインタラクティブな分析") 
