@@ -1,8 +1,16 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import plotly.express as px
-import plotly.graph_objects as go
+
+# plotlyのインポートを試行
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    st.error("⚠️ plotlyライブラリが見つかりません。以下のコマンドでインストールしてください：")
+    st.code("pip install plotly")
+    PLOTLY_AVAILABLE = False
 
 # ページ設定
 st.set_page_config(
@@ -43,28 +51,32 @@ col1, col2 = st.columns([2, 1])
 with col1:
     st.subheader("📈 データ可視化")
     
-    if chart_type == "折れ線グラフ":
-        fig = px.line(data, x='日付', y='売上', title='売上推移')
-        st.plotly_chart(fig, use_container_width=True)
-        
-    elif chart_type == "散布図":
-        fig = px.scatter(data, x='顧客数', y='売上', 
-                        color='満足度', title='顧客数と売上の関係')
-        st.plotly_chart(fig, use_container_width=True)
-        
-    elif chart_type == "棒グラフ":
-        # 月別データに変換
-        monthly_data = data.set_index('日付').resample('M').mean()
-        fig = px.bar(monthly_data, y='売上', title='月別平均売上')
-        st.plotly_chart(fig, use_container_width=True)
-        
-    elif chart_type == "ヒートマップ":
-        # 相関行列のヒートマップ
-        corr_matrix = data[['売上', '顧客数', '満足度']].corr()
-        fig = px.imshow(corr_matrix, 
-                       title='相関行列',
-                       color_continuous_scale='RdBu')
-        st.plotly_chart(fig, use_container_width=True)
+    if not PLOTLY_AVAILABLE:
+        st.warning("plotlyが利用できないため、データテーブルを表示します。")
+        st.dataframe(data)
+    else:
+        if chart_type == "折れ線グラフ":
+            fig = px.line(data, x='日付', y='売上', title='売上推移')
+            st.plotly_chart(fig, use_container_width=True)
+            
+        elif chart_type == "散布図":
+            fig = px.scatter(data, x='顧客数', y='売上', 
+                            color='満足度', title='顧客数と売上の関係')
+            st.plotly_chart(fig, use_container_width=True)
+            
+        elif chart_type == "棒グラフ":
+            # 月別データに変換
+            monthly_data = data.set_index('日付').resample('M').mean()
+            fig = px.bar(monthly_data, y='売上', title='月別平均売上')
+            st.plotly_chart(fig, use_container_width=True)
+            
+        elif chart_type == "ヒートマップ":
+            # 相関行列のヒートマップ
+            corr_matrix = data[['売上', '顧客数', '満足度']].corr()
+            fig = px.imshow(corr_matrix, 
+                           title='相関行列',
+                           color_continuous_scale='RdBu')
+            st.plotly_chart(fig, use_container_width=True)
 
 with col2:
     st.subheader("📊 統計情報")
@@ -97,16 +109,4 @@ filtered_data = data[
 ]
 
 if len(filtered_data) > 0:
-    st.write(f"選択期間: {date_range[0]} から {date_range[1]}")
-    st.write(f"データ数: {len(filtered_data)} 件")
-    
-    # フィルタリングされたデータのグラフ
-    fig = px.line(filtered_data, x='日付', y='売上', 
-                  title=f'選択期間の売上推移')
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.warning("選択された期間にデータがありません。")
-
-# フッター
-st.markdown("---")
-st.markdown("**Streamlit サンプルアプリ** - データ可視化とインタラクティブな分析") 
+    st.write(f"選択期�
